@@ -16,7 +16,7 @@ const int M = 8;
 Lista<char> palabra;
 
 void ej6T11();
-void ej6T11(const char lab[N][M], bool marcas[][M], int xOrigen, int yOrigen, int xDestino, int yDestino, char solucion[], int k, typename Lista<char>::Iterador &it);
+void ej6T11(const char lab[N][M], bool marcas[][M], int xOrigen, int yOrigen, int xDestino, int yDestino, char solucion[], int k, typename Lista<char>::Iterador &it, char mejorSol[], int &mejorLog);
 void calculaPosicion(int &x, int &y, int k);
 char calculaDirecion(int k);
 bool esValida(const char lab[N][M], char solucion[], int k, char letra, int x, int y);
@@ -32,7 +32,7 @@ int main(int argc, const char * argv[])
 
 void ej6T11() {
     char lab[N][M] = { {'M','D','A','A','E','E','D','A'},
-                       {'A','E','D','D','A','N','D','D'},
+                       {'A','E','E','D','D','A','E','D'},
                        {'D','B','D','X','E','D','A','E'},
                        {'E','A','E','D','A','R','T','D'},
                        {'E','D','M','P','L','E','D','A'},
@@ -43,9 +43,11 @@ void ej6T11() {
     palabra.ponDr('A');
     
     char solucion[N*M];
+    char mejorSolucion[N*M];
     
     for (int i=0; i < N*M; i++) {
         solucion[i] = ' ';
+        mejorSolucion[i] = ' ';
     }
     
     bool marcas[N][M];
@@ -59,10 +61,12 @@ void ej6T11() {
     Lista<char>::Iterador it = palabra.principio();
     it.avanza();
     
-    ej6T11(lab, marcas, N-1, 0, 0, M-1, solucion, 0, it);
+    int mejorLongitud = N*M;
+    
+    ej6T11(lab, marcas, N-1, 0, 0, M-1, solucion, 0, it, mejorSolucion, mejorLongitud);
 }
 
-void ej6T11(const char lab[N][M], bool marcas[][M], int xOrigen, int yOrigen, int xDestino, int yDestino, char solucion[], int k, typename Lista<char>::Iterador &it) {
+void ej6T11(const char lab[N][M], bool marcas[][M], int xOrigen, int yOrigen, int xDestino, int yDestino, char solucion[], int k, typename Lista<char>::Iterador &it, char mejorSol[], int &mejorLog) {
     
     char letra;
     int xAux, yAux;
@@ -82,9 +86,18 @@ void ej6T11(const char lab[N][M], bool marcas[][M], int xOrigen, int yOrigen, in
                 
                 if ( esSolucion(xAux, yAux, xDestino, yDestino) ) {
                     
-                    cout << "tratar solucion" << endl;
-                    for (int g=0; g <= k; g++) {
-                        cout << solucion[g] << ", ";
+                    if ( k < mejorLog ) {
+                        
+                        mejorLog = k;
+                        
+                        for (int j = 0; j < k; j++) {
+                            mejorSol[j] = solucion[j];
+                        }
+                        
+                        cout << endl << "Tratar mejor solucion" << endl;
+                        for (int g=0; g <= k; g++) {
+                            cout << solucion[g] << ", ";
+                        }
                     }
                 }
                 else {
@@ -96,7 +109,9 @@ void ej6T11(const char lab[N][M], bool marcas[][M], int xOrigen, int yOrigen, in
                     
                     marcas[xAux][yAux] = true;
                     
-                    ej6T11(lab, marcas, xAux, yAux, xDestino, yDestino, solucion, k+1, it);
+                    ej6T11(lab, marcas, xAux, yAux, xDestino, yDestino, solucion, k+1, it, mejorSol, mejorLog);
+                    
+                    marcas[xAux][yAux] = false;
                 }
             }
         }
